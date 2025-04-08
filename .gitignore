@@ -12,6 +12,7 @@ __pycache__
 *.bak
 *.png
 *.deb
+*.txt
 
 .isort.cfg
 .pre-commit-config.yaml

@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import ipdb
 import argparse
 import os
 
@@ -23,12 +23,13 @@ from pipelines.pipeline_infu_flux import InfUFluxPipeline
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--id_image', default='./assets/examples/yann-lecun_resize.jpg', help="""input ID image""")
+    parser.add_argument('--id_image', default='/SAN/intelsys/IdPreservProject/epic/dataset/FormatPhoto/P6.png', help="""input ID image""")
     parser.add_argument('--control_image', default=None, help="""control image [optional]""")
     parser.add_argument('--out_results_dir', default='./results', help="""output folder""")
     parser.add_argument('--prompt', default='A man, portrait, cinematic')
     parser.add_argument('--base_model_path', default='black-forest-labs/FLUX.1-dev')
-    parser.add_argument('--model_dir', default='ByteDance/InfiniteYou')
+    parser.add_argument('--model_dir', default='/SAN/intelsys/IdPreservProject/epic/models/InfiniteYou')
+    # parser.add_argument('--model_dir', default='ByteDance/InfiniteYou')# 
     parser.add_argument('--infu_flux_version', default='v1.0', help="""InfiniteYou-FLUX version: currently only v1.0""")
     parser.add_argument('--model_version', default='aes_stage2', help="""model version: aes_stage2 | sim_stage1""")
     parser.add_argument('--cuda_device', default=0, type=int)
@@ -38,9 +39,11 @@ def main():
     parser.add_argument('--infusenet_conditioning_scale', default=1.0, type=float)
     parser.add_argument('--infusenet_guidance_start', default=0.0, type=float)
     parser.add_argument('--infusenet_guidance_end', default=1.0, type=float)
+    parser.add_argument('--emotion', default="amusement")
+    
     # The LoRA options below are entirely optional. Here we provide two examples to facilitate users to try, but they are NOT used in our paper.
-    parser.add_argument('--enable_realism_lora', action='store_true')
-    parser.add_argument('--enable_anti_blur_lora', action='store_true')
+    # parser.add_argument('--enable_realism_lora', action='store_true')
+    # parser.add_argument('--enable_anti_blur_lora', action='store_true')
     args = parser.parse_args()
 
     # Check arguments
@@ -61,15 +64,14 @@ def main():
         model_version=args.model_version,
     )
     # Load LoRAs (optional)
-    lora_dir = os.path.join(args.model_dir, 'supports', 'optional_loras')
-    if not os.path.exists(lora_dir): lora_dir = './models/InfiniteYou/supports/optional_loras'
-    loras = []
-    if args.enable_realism_lora:
-        loras.append([os.path.join(lora_dir, 'flux_realism_lora.safetensors'), 'realism', 1.0])
-    if args.enable_anti_blur_lora:
-        loras.append([os.path.join(lora_dir, 'flux_anti_blur_lora.safetensors'), 'anti_blur', 1.0])
-    pipe.load_loras(loras)
-    
+    # lora_dir = os.path.join(args.model_dir, 'supports', 'optional_loras')
+    # if not os.path.exists(lora_dir): lora_dir = './models/InfiniteYou/supports/optional_loras'
+    # loras = []
+    # if args.enable_realism_lora:
+    #     loras.append([os.path.join(lora_dir, 'flux_realism_lora.safetensors'), 'realism', 1.0])
+    # if args.enable_anti_blur_lora:
+    #     loras.append([os.path.join(lora_dir, 'flux_anti_blur_lora.safetensors'), 'anti_blur', 1.0])
+    # pipe.load_loras(loras)
     # Perform inference
     if args.seed == 0:
         args.seed = torch.seed() & 0xFFFFFFFF
@@ -87,14 +89,18 @@ def main():
     
     # Save results
     os.makedirs(args.out_results_dir, exist_ok=True)
-    index = len(os.listdir(args.out_results_dir))
-    id_name = os.path.splitext(os.path.basename(args.id_image))[0]
-    prompt_name = args.prompt[:150] + '*' if len(args.prompt) > 150 else args.prompt
-    prompt_name = prompt_name.replace('/', '|')
-    out_name = f'{index:05d}_{id_name}_{prompt_name}_seed{args.seed}.png'
-    out_result_path = os.path.join(args.out_results_dir, out_name)
+    # index = len(os.listdir(args.out_results_dir))
+    # id_name = os.path.splitext(os.path.basename(args.id_image))[0]
+    # prompt_name = args.prompt[:150] + '*' if len(args.prompt) > 150 else args.prompt
+    # prompt_name = prompt_name.replace('/', '|')
+    # out_name = f'{index:05d}_{id_name}_{prompt_name}_seed{args.seed}.png'
+    # out_result_path = os.path.join(args.out_results_dir, out_name)
+    out_result_path = os.path.join(args.out_results_dir, f'{args.emotion}.png')
     image.save(out_result_path)
 
 
 if __name__ == "__main__":
+    ipdb.set_trace()
     main()
+
+# python InfiniteYou/test.py --emotion "amusement" --id_image epic/dataset/FormatPhoto/P6.png --out_results_dir ./results --prompt "A middle-aged man with a twinkle in his eye, leans back in a vintage leather chair, chuckling heartily. His hand rests on an open book, pages fluttering. The room, adorned in Art Deco style, features whimsical geometric patterns in warm tones. Laughter lines are accentuated with gentle, rhythmic brushstrokes, enhancing the light-hearted atmosphere."

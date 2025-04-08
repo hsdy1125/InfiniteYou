@@ -137,8 +137,8 @@ class InfUFluxPipeline:
         
         # Load pipeline
         try:
-            infusenet_path = os.path.join(infu_model_path, 'InfuseNetModel')
-            self.infusenet = FluxControlNetModel.from_pretrained(infusenet_path, torch_dtype=torch.bfloat16)
+            infusenet_path = os.path.join(infu_model_path, 'InfuseNetModel') #本地存放 InfuseNet 模型参数的路径
+            self.infusenet = FluxControlNetModel.from_pretrained(infusenet_path, torch_dtype=torch.bfloat16) #加载一个 FluxControlNetModel 模型实例，并赋值给类中的属性 self.infusenet，供后续控制网络使用。
         except:
             print("No InfiniteYou model found. Downloading from HuggingFace `ByteDance/InfiniteYou` to `./models/InfiniteYou` ...")
             snapshot_download(repo_id='ByteDance/InfiniteYou', local_dir='./models/InfiniteYou', local_dir_use_symlinks=False)
@@ -193,6 +193,19 @@ class InfUFluxPipeline:
         self.image_proj_model = image_proj_model
 
         # Load face encoder
+        print("now is loading face encoder")
+        # self.app_640 = FaceAnalysis(name='antelopev2', 
+        #                         providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
+        # self.app_640.prepare(ctx_id=0, det_size=(640, 640))
+
+        # self.app_320 = FaceAnalysis(name='antelopev2', 
+        #                         providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
+        # self.app_320.prepare(ctx_id=0, det_size=(320, 320))
+
+        # self.app_160 = FaceAnalysis(name='antelopev2', 
+        #                         providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
+        # self.app_160.prepare(ctx_id=0, det_size=(160, 160))
+        
         self.app_640 = FaceAnalysis(name='antelopev2', 
                                 root=insightface_root_path, providers=['CUDAExecutionProvider', 'CPUExecutionProvider'])
         self.app_640.prepare(ctx_id=0, det_size=(640, 640))
